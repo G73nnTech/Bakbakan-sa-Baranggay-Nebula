@@ -119,12 +119,67 @@
         .icon-btn svg {
             display: none;
         }
+
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            /* Reserved space for HUD */
+            background-color: black;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 40px;
+            box-sizing: border-box;
+            border-bottom: 2px solid #333;
+            z-index: 10;
+        }
+
+        #game-title {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffcc00;
+            /* Goldish color for title */
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+
+        #stats-row {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .hud-item {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 150, 255, 0.5);
+            font-family: 'Courier New', Courier, monospace;
+        }
     </style>
 </head>
 
 <body>
     <div id="container">
         <canvas id="gameCanvas"></canvas>
+
+        <!-- HEADS UP DISPLAY -->
+        <div id="hud">
+            <div id="game-title">Bakbakan sa Baranggay Nebula</div>
+            <div id="stats-row">
+                <div class="hud-item" id="timerDisplay">TIME: 2:00</div>
+                <div class="hud-item" id="levelDisplay">LEVEL: 1</div>
+                <div class="hud-item" id="scoreDisplay">SCORE: 0</div>
+                <div class="hud-item" id="livesDisplay">LIVES: 3</div>
+            </div>
+        </div>
+
         <div id="ui-layer">
             <button id="startBtn">START MISSION</button>
         </div>

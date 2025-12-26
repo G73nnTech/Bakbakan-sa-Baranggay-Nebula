@@ -11,14 +11,24 @@ export class Player {
         this.image = new Image();
         this.image.src = 'assets/player.png';
 
+        this.speedY = 0;
+        this.maxSpeed = 5;
+
+        // Health / Visuals
+        this.markedForDeletion = false;
+        this.lives = 3;
+
         this.shootTimer = 0;
         this.shootInterval = 200; // ms
     }
 
     update(deltaTime) {
-        // Movement
-        if (this.game.input.keys.includes('ArrowLeft')) this.x -= this.speed;
-        if (this.game.input.keys.includes('ArrowRight')) this.x += this.speed;
+        // Movement Logic
+        if (this.game.input.keys.includes('ArrowLeft')) this.speedX = -this.maxSpeed;
+        else if (this.game.input.keys.includes('ArrowRight')) this.speedX = this.maxSpeed;
+        else this.speedX = 0;
+
+        this.x += this.speedX;
 
         // Boundaries
         if (this.x < 0) this.x = 0;

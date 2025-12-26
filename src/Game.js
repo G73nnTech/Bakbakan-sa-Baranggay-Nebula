@@ -20,13 +20,26 @@ export class Game {
         this.enemies = [];
         this.particles = [];
 
-        this.gameState = 'START'; // START, PLAYING, GAMEOVER
+        this.gameState = 'START'; // START, PLAYING, GAMEOVER, PAUSED
         this.openingImage = new Image();
         this.openingImage.src = 'assets/opening_bg.jpg';
+
+        this.level = 1;
+        this.score = 0;
+        this.lives = 3;
+
+        this.levelTime = 120000; // 2 minutes
+        this.levelTimer = this.levelTime;
 
         this.enemyTimer = 0;
         this.enemyInterval = 1000;
         this.gameOverTimer = 0;
+
+        // UI Elements
+        this.levelDisplay = document.getElementById('levelDisplay');
+        this.scoreDisplay = document.getElementById('scoreDisplay');
+        this.livesDisplay = document.getElementById('livesDisplay');
+        this.timerDisplay = document.getElementById('timerDisplay');
 
         this.enemyImages = [];
         for (let i = 1; i <= 5; i++) {
@@ -34,11 +47,17 @@ export class Game {
             img.src = `assets/enemy${i}.png`;
             this.enemyImages.push(img);
         }
+        this.hud = document.getElementById('hud');
+        this.hud.style.display = 'none'; // Hide HUD initially
+        this.uiLayer = document.getElementById('ui-layer'); // Get UI Layer
+        this.topMargin = 100; // Height of the HUD to avoid overlap
     }
 
     start() {
         this.gameState = 'PLAYING';
+        this.hud.style.display = 'flex'; // Show HUD
         this.restart();
+        this.updateHUD();
     }
 
     pause() {
@@ -51,12 +70,37 @@ export class Game {
 
     exit() {
         this.gameState = 'START';
+        this.hud.style.display = 'none'; // Hide HUD
         this.restart();
+    }
+
+    updateHUD() {
+        this.levelDisplay.innerText = `LEVEL: ${this.level}`;
+        this.scoreDisplay.innerText = `SCORE: ${this.score}`;
+        this.livesDisplay.innerText = `LIVES: ${'❤'.repeat(Math.max(0, this.lives))}`;
+        const totalSeconds = Math.ceil(this.levelTimer / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        this.timerDisplay.innerText = `TIME: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    addScore(points) {
+        this.score += points;
+        this.updateHUD();
     }
 
     update(deltaTime) {
         this.background.update(deltaTime);
         if (this.gameState === 'START') {
+            return;
+        }
+
+        if (this.gameState === 'LEVEL_COMPLETE') {
+            if (this.input.keys.includes('Enter')) {
+                this.level++;
+                this.restart(); // Or start next level logic
+                this.gameState = 'PLAYING';
+            }
             return;
         }
 
@@ -67,6 +111,9 @@ export class Game {
         if (this.gameState === 'GAMEOVER') {
             if (this.input.keys.includes('Enter') && this.gameOverTimer > 1000) {
                 this.gameState = 'START';
+                this.hud.style.display = 'none'; // Hide HUD
+                this.uiLayer.style.display = 'flex'; // Show Start Button
+                this.restart();
             }
             this.gameOverTimer += deltaTime;
             return;
@@ -82,13 +129,18 @@ export class Game {
             // Enemies
             this.enemies = this.enemies.filter(e => !e.markedForDeletion);
             this.enemies.forEach(e => {
-                e.update();
+                e.update(deltaTime);
                 // Check collision with player
                 if (this.checkCollision(this.player, e)) {
-                    // Game Over logic
-                    this.createExplosion(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 20);
-                    this.gameState = 'GAMEOVER';
-                    this.gameOverTimer = 0;
+                    e.markedForDeletion = true;
+                    this.createExplosion(e.x + e.width / 2, e.y + e.height / 2);
+                    this.lives--;
+                    this.updateHUD();
+                    if (this.lives <= 0) {
+                        this.createExplosion(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 20);
+                        this.gameState = 'GAMEOVER';
+                        this.gameOverTimer = 0;
+                    }
                 }
             });
 
@@ -103,17 +155,43 @@ export class Game {
             this.particles = this.particles.filter(p => !p.markedForDeletion);
             this.particles.forEach(p => p.update());
 
-            // Collisions Projectiles vs Enemies
+            // Collisions
             this.projectiles.forEach(projectile => {
-                this.enemies.forEach(enemy => {
-                    if (!projectile.markedForDeletion && !enemy.markedForDeletion &&
-                        this.checkCollision(projectile, enemy)) {
-                        enemy.markedForDeletion = true;
+                if (projectile.markedForDeletion) return;
+
+                // Player Projectiles (Speed > 0, moving UP)
+                if (projectile.speed > 0) {
+                    this.enemies.forEach(enemy => {
+                        if (!enemy.markedForDeletion && this.checkCollision(projectile, enemy)) {
+                            enemy.markedForDeletion = true;
+                            projectile.markedForDeletion = true;
+                            this.createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
+                            this.addScore(100);
+                        }
+                    });
+                }
+                // Enemy Projectiles (Speed < 0, moving DOWN)
+                else {
+                    if (this.checkCollision(projectile, this.player)) {
                         projectile.markedForDeletion = true;
-                        this.createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
+                        this.createExplosion(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 5);
+                        this.lives--;
+                        this.updateHUD();
+                        if (this.lives <= 0) {
+                            this.createExplosion(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 20);
+                            this.gameState = 'GAMEOVER';
+                            this.gameOverTimer = 0;
+                        }
                     }
-                });
+                }
             });
+
+            // Level Timer
+            this.levelTimer -= deltaTime;
+            this.updateHUD(); // Update timer every frame
+            if (this.levelTimer <= 0) {
+                this.gameState = 'LEVEL_COMPLETE';
+            }
         }
     }
 
@@ -127,7 +205,7 @@ export class Game {
                 this.ctx.drawImage(this.openingImage, 0, 0, this.width, this.height);
             }
             // Removed text drawing, handled by UI
-        } else if (this.gameState === 'PLAYING' || this.gameState === 'GAMEOVER' || this.gameState === 'PAUSED') {
+        } else if (this.gameState === 'PLAYING' || this.gameState === 'GAMEOVER' || this.gameState === 'PAUSED' || this.gameState === 'LEVEL_COMPLETE') {
             this.player.draw(this.ctx);
             this.projectiles.forEach(p => p.draw(this.ctx));
             this.enemies.forEach(e => e.draw(this.ctx));
@@ -144,14 +222,46 @@ export class Game {
                 this.ctx.font = '20px Arial';
                 this.ctx.fillText('Press Enter to Restart', this.width / 2, this.height / 2 + 50);
             }
+
+            if (this.gameState === 'LEVEL_COMPLETE') {
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                this.ctx.fillRect(0, 0, this.width, this.height);
+                this.ctx.fillStyle = 'yellow';
+                this.ctx.font = '50px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText('LEVEL COMPLETE', this.width / 2, this.height / 2);
+                this.ctx.fillStyle = 'white';
+                this.ctx.font = '20px Arial';
+                this.ctx.fillText('Press Enter to Continue', this.width / 2, this.height / 2 + 50);
+            }
         }
     }
 
     addEnemy() {
-        // Spawn enemies in specific pattern or random for now
-        const x = Math.random() * (this.width - 50);
-        const image = this.enemyImages[Math.floor(Math.random() * this.enemyImages.length)];
-        this.enemies.push(new Enemy(this, x, 0, image));
+        const width = 50;
+        let x = Math.random() * (this.width - width);
+        let attempts = 0;
+        let overlap = false;
+
+        // Try to find a non-overlapping position
+        do {
+            overlap = false;
+            x = Math.random() * (this.width - width);
+            // Simple check against all existing enemies
+            for (const enemy of this.enemies) {
+                if (x < enemy.x + enemy.width && x + width > enemy.x &&
+                    this.topMargin < enemy.y + enemy.height && this.topMargin + 50 > enemy.y) {
+                    overlap = true;
+                    break;
+                }
+            }
+            attempts++;
+        } while (overlap && attempts < 10);
+
+        if (!overlap) {
+            const image = this.enemyImages[Math.floor(Math.random() * this.enemyImages.length)];
+            this.enemies.push(new Enemy(this, x, this.topMargin, image));
+        }
     }
 
     checkCollision(rect1, rect2) {
@@ -174,5 +284,10 @@ export class Game {
         this.enemies = [];
         this.particles = [];
         this.enemyTimer = 0;
+        this.score = 0;
+        this.level = 1;
+        this.lives = 3;
+        this.levelTimer = this.levelTime;
+        this.updateHUD();
     }
 }
