@@ -21,5 +21,6 @@ export class TitanEnemy extends Enemy {
 
         // Middle shot
         this.game.projectiles.push(new Projectile(this.game, startX, startY, speed, color, type, 0));
+        this.game.sound.titanShoot();
     }
 }

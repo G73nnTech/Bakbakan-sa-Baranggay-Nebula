@@ -8,6 +8,7 @@ import { PowerUp } from './PowerUp.js';
 import { Particle } from './Particle.js';
 
 import { Background } from './Background.js';
+import { SoundController } from './SoundController.js';
 
 export class Game {
     constructor(canvas) {
@@ -17,6 +18,7 @@ export class Game {
         this.height = this.canvas.height;
 
         this.input = new InputHandler();
+        this.sound = new SoundController();
         this.player = new Player(this);
 
         this.background = new Background(this);
@@ -148,10 +150,12 @@ export class Game {
                     e.markedForDeletion = true;
                     this.createExplosion(e.x + e.width / 2, e.y + e.height / 2);
                     this.lives--;
+                    this.sound.loseLife();
                     this.updateHUD();
                     if (this.lives <= 0) {
                         this.createExplosion(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 20);
                         this.gameState = 'GAMEOVER';
+                        this.sound.gameOver();
                         this.gameOverTimer = 0;
                     }
                 }
@@ -181,6 +185,7 @@ export class Game {
             // Collision with player
             if (this.checkCollision(this.player, p)) {
                 p.markedForDeletion = true;
+                this.sound.powerUp();
                 this.lives++;
                 this.updateHUD();
             }
@@ -202,7 +207,8 @@ export class Game {
                         projectile.markedForDeletion = true;
                         if (enemy.markedForDeletion) {
                             if (enemy instanceof TitanEnemy) {
-                                this.createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, 100);
+                                this.createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, 100, false);
+                                this.sound.titanExplosion();
                             } else {
                                 this.createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
                             }
@@ -220,10 +226,12 @@ export class Game {
                     projectile.markedForDeletion = true;
                     this.createExplosion(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 5);
                     this.lives--;
+                    this.sound.loseLife();
                     this.updateHUD();
                     if (this.lives <= 0) {
                         this.createExplosion(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 20);
                         this.gameState = 'GAMEOVER';
+                        this.sound.gameOver();
                         this.gameOverTimer = 0;
                     }
                 }
@@ -308,6 +316,7 @@ export class Game {
                 const rand = Math.random();
                 if (rand < 0.2) {
                     this.enemies.push(new TitanEnemy(this, x, this.topMargin, image));
+                    this.sound.titanSpawn();
                 } else if (rand < 0.5) {
                     this.enemies.push(new SwarmerEnemy(this, x, this.topMargin, image));
                 } else if (rand < 0.8) {
@@ -337,7 +346,10 @@ export class Game {
             rect1.height + rect1.y > rect2.y);
     }
 
-    createExplosion(x, y, count = 10) {
+    createExplosion(x, y, count = 10, playSound = true) {
+        if (playSound) {
+            this.sound.explosion();
+        }
         for (let i = 0; i < count; i++) {
             this.particles.push(new Particle(this, x, y));
         }

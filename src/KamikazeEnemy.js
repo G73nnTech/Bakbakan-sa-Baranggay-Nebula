@@ -38,6 +38,7 @@ export class KamikazeEnemy extends Enemy {
     }
 
     startDive() {
+        this.game.sound.kamikazeDive();
         this.isDiving = true;
         this.speedX = (Math.random() - 0.5) * 4; // Add some random horizontal drift while diving
 

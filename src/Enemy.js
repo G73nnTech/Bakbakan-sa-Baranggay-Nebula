@@ -44,6 +44,7 @@ export class Enemy {
 
     shoot() {
         this.game.projectiles.push(new Projectile(this.game, this.x + this.width / 2, this.y + this.height, -6, '#f00'));
+        this.game.sound.enemyShoot();
     }
 
     draw(ctx) {

@@ -38,6 +38,7 @@ export class Player {
         if (this.shootTimer > 0) this.shootTimer -= deltaTime;
         if (this.game.input.keys.includes(' ') && this.shootTimer <= 0) {
             this.game.projectiles.push(new Projectile(this.game, this.x + this.width / 2, this.y));
+            this.game.sound.shoot();
             this.shootTimer = this.shootInterval;
         }
     }
