@@ -17,7 +17,7 @@ export class Game {
         this.width = this.canvas.width;
         this.height = this.canvas.height;
 
-        this.input = new InputHandler();
+        this.input = new InputHandler(this);
         this.sound = new SoundController();
         this.player = new Player(this);
 

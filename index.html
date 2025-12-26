@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
     <title>Bakbakan sa Baranggay Nebula</title>
     <style>
         body {
@@ -31,6 +32,8 @@
             box-shadow: 0 0 20px rgba(0, 150, 255, 0.2);
             background-color: #000;
             display: block;
+            touch-action: none;
+            /* Prevent Pull-to-Refresh and scrolling on mobile */
         }
 
         #ui-layer {
