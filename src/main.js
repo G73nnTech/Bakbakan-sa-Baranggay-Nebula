@@ -34,7 +34,8 @@ window.addEventListener('load', () => {
     // Center Tap (Pause) functionality
     window.addEventListener('click', (e) => {
         // Prevent pausing when clicking buttons
-        if (e.target.tagName === 'BUTTON') return;
+        // Prevent pausing when clicking buttons or inside mobile controls
+        if (e.target.tagName === 'BUTTON' || e.target.closest('#mobile-controls')) return;
 
         if (game.gameState === 'PLAYING') {
             game.pause();
