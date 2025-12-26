@@ -1,11 +1,7 @@
 export class InputHandler {
     constructor(game) {
-        this.game = game; // Store reference to game
+        this.game = game;
         this.keys = [];
-        this.touchX = 0;
-        this.touchY = 0;
-        this.touchTapped = false; // For menu interactions
-        this.isTouching = false;
 
         window.addEventListener('keydown', e => {
             if ((e.key === 'ArrowLeft' ||
@@ -25,27 +21,47 @@ export class InputHandler {
             }
         });
 
-        // Touch Events
-        this.game.canvas.addEventListener('touchstart', e => {
-            this.isTouching = true;
-            this.touchTapped = true; // Register a tap
-            const rect = this.game.canvas.getBoundingClientRect();
-            const scaleX = this.game.width / rect.width;
-            this.touchX = (e.changedTouches[0].clientX - rect.left) * scaleX;
-            // Reset tap quickly so it acts like a click for menus if needed
-            setTimeout(() => this.touchTapped = false, 200);
-        }, { passive: false });
+        // Mobile Button Listeners
+        const btnLeft = document.getElementById('btnLeft');
+        const btnRight = document.getElementById('btnRight');
 
-        this.game.canvas.addEventListener('touchmove', e => {
-            e.preventDefault(); // Prevent scrolling
-            this.isTouching = true;
-            const rect = this.game.canvas.getBoundingClientRect();
-            const scaleX = this.game.width / rect.width;
-            this.touchX = (e.changedTouches[0].clientX - rect.left) * scaleX;
-        }, { passive: false });
+        const addKey = (key) => {
+            if (this.keys.indexOf(key) === -1) this.keys.push(key);
+        };
+        const removeKey = (key) => {
+            const index = this.keys.indexOf(key);
+            if (index > -1) this.keys.splice(index, 1);
+        };
 
-        this.game.canvas.addEventListener('touchend', e => {
-            this.isTouching = false;
-        });
+        const handleMobilePress = (direction) => {
+            // Add direction key
+            addKey(direction);
+            // Add shoot key (Auto-shoot)
+            addKey(' ');
+        };
+
+        const handleMobileRelease = (direction) => {
+            removeKey(direction);
+            // Only stop shooting if NO move keys are pressed
+            if (this.keys.indexOf('ArrowLeft') === -1 && this.keys.indexOf('ArrowRight') === -1) {
+                removeKey(' ');
+            }
+        };
+
+        if (btnLeft && btnRight) {
+            // Touch Events (prevent default to stop scrolling/selection)
+            btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); handleMobilePress('ArrowLeft'); });
+            btnLeft.addEventListener('touchend', (e) => { e.preventDefault(); handleMobileRelease('ArrowLeft'); });
+
+            btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); handleMobilePress('ArrowRight'); });
+            btnRight.addEventListener('touchend', (e) => { e.preventDefault(); handleMobileRelease('ArrowRight'); });
+
+            // Mouse Events (for testing on desktop if needed)
+            btnLeft.addEventListener('mousedown', (e) => { handleMobilePress('ArrowLeft'); });
+            btnLeft.addEventListener('mouseup', (e) => { handleMobileRelease('ArrowLeft'); });
+
+            btnRight.addEventListener('mousedown', (e) => { handleMobilePress('ArrowRight'); });
+            btnRight.addEventListener('mouseup', (e) => { handleMobileRelease('ArrowRight'); });
+        }
     }
 }

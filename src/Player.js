@@ -37,28 +37,11 @@ export class Player {
         // Shooting
         if (this.shootTimer > 0) this.shootTimer -= deltaTime;
 
-        // Touch or Keyboard Shooting
-        if ((this.game.input.keys.includes(' ') || this.game.input.isTouching) && this.shootTimer <= 0) {
+        // Touch or Keyboard Shooting (Touch effectively presses Space now via InputHandler)
+        if (this.game.input.keys.includes(' ') && this.shootTimer <= 0) {
             this.game.projectiles.push(new Projectile(this.game, this.x + this.width / 2, this.y));
             this.game.sound.shoot();
             this.shootTimer = this.shootInterval;
-        }
-
-        // Touch Movement Override
-        if (this.game.input.isTouching) {
-            // "Follow Finger" logic
-            // We want the CENTER of the player to align with touchX
-            const targetX = this.game.input.touchX - this.width / 2;
-            const dx = targetX - this.x;
-
-            // Move towards target
-            if (Math.abs(dx) > 5) { // Deadzone to stop jitter
-                if (dx > 0) this.speedX = this.maxSpeed;
-                else this.speedX = -this.maxSpeed;
-            } else {
-                this.speedX = 0;
-                this.x = targetX; // Snap if close enough
-            }
         }
     }
 
