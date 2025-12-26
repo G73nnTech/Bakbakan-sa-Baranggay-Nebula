@@ -1,6 +1,8 @@
 import { Player } from './Player.js';
 import { InputHandler } from './InputHandler.js';
 import { Enemy } from './Enemy.js';
+import { KamikazeEnemy } from './KamikazeEnemy.js';
+import { PowerUp } from './PowerUp.js';
 import { Particle } from './Particle.js';
 
 import { Background } from './Background.js';
@@ -18,13 +20,16 @@ export class Game {
         this.background = new Background(this);
         this.projectiles = [];
         this.enemies = [];
+        this.projectiles = [];
+        this.enemies = [];
         this.particles = [];
+        this.powerUps = [];
 
         this.gameState = 'START'; // START, PLAYING, GAMEOVER, PAUSED
         this.openingImage = new Image();
         this.openingImage.src = 'assets/opening_bg.jpg';
 
-        this.level = 1;
+        this.level = 2;
         this.score = 0;
         this.lives = 3;
 
@@ -33,6 +38,12 @@ export class Game {
 
         this.enemyTimer = 0;
         this.enemyInterval = 1000;
+        this.enemyTimer = 0;
+        this.enemyInterval = 1000;
+
+        this.powerUpTimer = 0;
+        this.powerUpInterval = 30000; // Spawn power up every 30 seconds (approx)
+
         this.gameOverTimer = 0;
 
         // UI Elements
@@ -98,7 +109,7 @@ export class Game {
         if (this.gameState === 'LEVEL_COMPLETE') {
             if (this.input.keys.includes('Enter')) {
                 this.level++;
-                this.restart(); // Or start next level logic
+                this.restart();
                 this.gameState = 'PLAYING';
             }
             return;
@@ -151,47 +162,68 @@ export class Game {
                 this.enemyTimer += deltaTime;
             }
 
-            // Particles
-            this.particles = this.particles.filter(p => !p.markedForDeletion);
-            this.particles.forEach(p => p.update());
-
-            // Collisions
-            this.projectiles.forEach(projectile => {
-                if (projectile.markedForDeletion) return;
-
-                // Player Projectiles (Speed > 0, moving UP)
-                if (projectile.speed > 0) {
-                    this.enemies.forEach(enemy => {
-                        if (!enemy.markedForDeletion && this.checkCollision(projectile, enemy)) {
-                            enemy.markedForDeletion = true;
-                            projectile.markedForDeletion = true;
-                            this.createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
-                            this.addScore(100);
-                        }
-                    });
+            // PowerUps
+            if (this.level >= 2) {
+                if (this.powerUpTimer > this.powerUpInterval) {
+                    this.addPowerUp();
+                    this.powerUpTimer = 0;
+                } else {
+                    this.powerUpTimer += deltaTime;
                 }
-                // Enemy Projectiles (Speed < 0, moving DOWN)
-                else {
-                    if (this.checkCollision(projectile, this.player)) {
+            }
+        }
+
+        this.powerUps = this.powerUps.filter(p => !p.markedForDeletion);
+        this.powerUps.forEach(p => {
+            p.update();
+            // Collision with player
+            if (this.checkCollision(this.player, p)) {
+                p.markedForDeletion = true;
+                this.lives++;
+                this.updateHUD();
+            }
+        });
+
+        // Particles
+        this.particles = this.particles.filter(p => !p.markedForDeletion);
+        this.particles.forEach(p => p.update());
+
+        // Collisions
+        this.projectiles.forEach(projectile => {
+            if (projectile.markedForDeletion) return;
+
+            // Player Projectiles (Speed > 0, moving UP)
+            if (projectile.speed > 0) {
+                this.enemies.forEach(enemy => {
+                    if (!enemy.markedForDeletion && this.checkCollision(projectile, enemy)) {
+                        enemy.markedForDeletion = true;
                         projectile.markedForDeletion = true;
-                        this.createExplosion(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 5);
-                        this.lives--;
-                        this.updateHUD();
-                        if (this.lives <= 0) {
-                            this.createExplosion(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 20);
-                            this.gameState = 'GAMEOVER';
-                            this.gameOverTimer = 0;
-                        }
+                        this.createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
+                        this.addScore(100);
+                    }
+                });
+            }
+            // Enemy Projectiles (Speed < 0, moving DOWN)
+            else {
+                if (this.checkCollision(projectile, this.player)) {
+                    projectile.markedForDeletion = true;
+                    this.createExplosion(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 5);
+                    this.lives--;
+                    this.updateHUD();
+                    if (this.lives <= 0) {
+                        this.createExplosion(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 20);
+                        this.gameState = 'GAMEOVER';
+                        this.gameOverTimer = 0;
                     }
                 }
-            });
-
-            // Level Timer
-            this.levelTimer -= deltaTime;
-            this.updateHUD(); // Update timer every frame
-            if (this.levelTimer <= 0) {
-                this.gameState = 'LEVEL_COMPLETE';
             }
+        });
+
+        // Level Timer
+        this.levelTimer -= deltaTime;
+        this.updateHUD(); // Update timer every frame
+        if (this.levelTimer <= 0) {
+            this.gameState = 'LEVEL_COMPLETE';
         }
     }
 
@@ -204,12 +236,12 @@ export class Game {
             if (this.openingImage.complete) {
                 this.ctx.drawImage(this.openingImage, 0, 0, this.width, this.height);
             }
-            // Removed text drawing, handled by UI
         } else if (this.gameState === 'PLAYING' || this.gameState === 'GAMEOVER' || this.gameState === 'PAUSED' || this.gameState === 'LEVEL_COMPLETE') {
             this.player.draw(this.ctx);
             this.projectiles.forEach(p => p.draw(this.ctx));
             this.enemies.forEach(e => e.draw(this.ctx));
             this.particles.forEach(p => p.draw(this.ctx));
+            this.powerUps.forEach(p => p.draw(this.ctx));
 
             if (this.gameState === 'GAMEOVER') {
                 this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
@@ -260,8 +292,19 @@ export class Game {
 
         if (!overlap) {
             const image = this.enemyImages[Math.floor(Math.random() * this.enemyImages.length)];
-            this.enemies.push(new Enemy(this, x, this.topMargin, image));
+
+            // Level 2: Chance to spawn Kamikaze
+            if (this.level >= 2 && Math.random() < 0.6) {
+                this.enemies.push(new KamikazeEnemy(this, x, this.topMargin, image));
+            } else {
+                this.enemies.push(new Enemy(this, x, this.topMargin, image));
+            }
         }
+    }
+
+    addPowerUp() {
+        const x = Math.random() * (this.width - 30);
+        this.powerUps.push(new PowerUp(this, x, -30));
     }
 
     checkCollision(rect1, rect2) {
@@ -283,11 +326,20 @@ export class Game {
         this.projectiles = [];
         this.enemies = [];
         this.particles = [];
+        this.powerUps = [];
         this.enemyTimer = 0;
         this.score = 0;
-        this.level = 1;
+        this.level = 2;
         this.lives = 3;
         this.levelTimer = this.levelTime;
+
+        // Level Configuration
+        if (this.level >= 2) {
+            this.player.shootInterval = 240; // 20% slower (200 * 1.2)
+        } else {
+            this.player.shootInterval = 200; // Reset for Level 1 (if restarting game)
+        }
+
         this.updateHUD();
     }
 }
