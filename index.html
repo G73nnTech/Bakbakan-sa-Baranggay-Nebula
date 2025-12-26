@@ -36,6 +36,49 @@
             /* Prevent Pull-to-Refresh and scrolling on mobile */
         }
 
+        #mobile-controls {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: none;
+            /* Hidden on desktop by default */
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+            pointer-events: none;
+            /* Let touches pass through container */
+            z-index: 200;
+        }
+
+        #mobile-controls button {
+            pointer-events: auto;
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            color: white;
+            font-size: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #mobile-controls button:active {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Show on mobile devices OR small screens */
+        @media (max-width: 1024px),
+        (hover: none) and (pointer: coarse) {
+            #mobile-controls {
+                display: flex;
+            }
+        }
+
         #ui-layer {
             position: absolute;
             top: 0;
