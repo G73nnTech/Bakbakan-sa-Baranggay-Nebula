@@ -6,6 +6,7 @@ window.addEventListener('load', () => {
     canvas.height = 600;
 
     const game = new Game(canvas);
+    window.game = game;
 
     // UI Elements
     const startBtn = document.getElementById('startBtn');

@@ -10,6 +10,7 @@ export class Enemy {
         this.height = 50;
         this.speedX = 2; // Horizontal movement speed
         this.markedForDeletion = false;
+        this.lives = 1;
 
         // Shooting
         this.shootTimer = 0;
@@ -34,11 +35,14 @@ export class Enemy {
         }
     }
 
+    hit(damage) {
+        this.lives -= damage;
+        if (this.lives <= 0) {
+            this.markedForDeletion = true;
+        }
+    }
+
     shoot() {
-        // -8 speed means up, so 8 means down (if Projectile defaults to up, we need to pass negative speed or modify Projectile logic). 
-        // Wait, Projectile: this.y -= this.speed;
-        // So positive speed goes UP. Negative speed goes DOWN.
-        // I want it to go down, so speed = -6.
         this.game.projectiles.push(new Projectile(this.game, this.x + this.width / 2, this.y + this.height, -6, '#f00'));
     }
 

@@ -21,6 +21,9 @@
 
         #container {
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         canvas {
@@ -121,20 +124,19 @@
         }
 
         #hud {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100px;
-            /* Reserved space for HUD */
-            background-color: black;
+            max-width: 800px;
+            /* Match canvas width */
+            height: auto;
+            min-height: 80px;
+            background-color: transparent;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 10px 40px;
+            padding: 10px 0 20px 0;
+            /* Add bottom padding to separate from canvas */
             box-sizing: border-box;
-            border-bottom: 2px solid #333;
             z-index: 10;
         }
 
@@ -142,33 +144,73 @@
             font-family: 'Courier New', Courier, monospace;
             font-size: 24px;
             font-weight: bold;
-            color: #ffcc00;
-            /* Goldish color for title */
-            margin-bottom: 10px;
+            color: #fff;
+            /* White text for contrast */
+            background-color: rgba(184, 134, 11, 0.8);
+            /* Dark Gold background */
+            padding: 10px 20px;
+            border: 2px solid #ffd700;
+            /* Bright Gold border */
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            margin-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+            text-shadow: 1px 1px 2px black;
         }
 
         #stats-row {
             display: flex;
             width: 100%;
-            justify-content: space-between;
+            justify-content: center;
+            /* Center the boxes */
+            gap: 20px;
+            /* Space between boxes */
         }
 
         .hud-item {
             font-size: 1.2rem;
             font-weight: bold;
-            text-shadow: 0 0 10px rgba(0, 150, 255, 0.5);
             font-family: 'Courier New', Courier, monospace;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            text-shadow: 1px 1px 2px black;
+            color: white;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        /* Specific Box Colors */
+        #timerDisplay {
+            background-color: rgba(0, 100, 200, 0.7);
+            /* Blue */
+            box-shadow: 0 0 10px rgba(0, 150, 255, 0.5);
+        }
+
+        #levelDisplay {
+            background-color: rgba(128, 0, 128, 0.7);
+            /* Purple */
+            box-shadow: 0 0 10px rgba(180, 0, 255, 0.5);
+        }
+
+        #scoreDisplay {
+            background-color: rgba(0, 128, 0, 0.7);
+            /* Green */
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        #livesDisplay {
+            background-color: rgba(178, 34, 34, 0.7);
+            /* Red */
+            box-shadow: 0 0 10px rgba(255, 50, 50, 0.5);
         }
     </style>
 </head>
 
 <body>
     <div id="container">
-        <canvas id="gameCanvas"></canvas>
-
         <!-- HEADS UP DISPLAY -->
         <div id="hud">
             <div id="game-title">Bakbakan sa Baranggay Nebula</div>
@@ -179,6 +221,8 @@
                 <div class="hud-item" id="livesDisplay">LIVES: 3</div>
             </div>
         </div>
+
+        <canvas id="gameCanvas"></canvas>
 
         <div id="ui-layer">
             <button id="startBtn">START MISSION</button>

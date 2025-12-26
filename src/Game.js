@@ -2,6 +2,8 @@ import { Player } from './Player.js';
 import { InputHandler } from './InputHandler.js';
 import { Enemy } from './Enemy.js';
 import { KamikazeEnemy } from './KamikazeEnemy.js';
+import { TitanEnemy } from './TitanEnemy.js';
+import { SwarmerEnemy } from './SwarmerEnemy.js';
 import { PowerUp } from './PowerUp.js';
 import { Particle } from './Particle.js';
 
@@ -29,7 +31,7 @@ export class Game {
         this.openingImage = new Image();
         this.openingImage.src = 'assets/opening_bg.jpg';
 
-        this.level = 2;
+        this.level = 3;
         this.score = 0;
         this.lives = 3;
 
@@ -61,7 +63,7 @@ export class Game {
         this.hud = document.getElementById('hud');
         this.hud.style.display = 'none'; // Hide HUD initially
         this.uiLayer = document.getElementById('ui-layer'); // Get UI Layer
-        this.topMargin = 100; // Height of the HUD to avoid overlap
+        this.topMargin = 0; // Height of the HUD to avoid overlap
     }
 
     start() {
@@ -196,10 +198,19 @@ export class Game {
             if (projectile.speed > 0) {
                 this.enemies.forEach(enemy => {
                     if (!enemy.markedForDeletion && this.checkCollision(projectile, enemy)) {
-                        enemy.markedForDeletion = true;
+                        enemy.hit(1);
                         projectile.markedForDeletion = true;
-                        this.createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
-                        this.addScore(100);
+                        if (enemy.markedForDeletion) {
+                            if (enemy instanceof TitanEnemy) {
+                                this.createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, 100);
+                            } else {
+                                this.createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
+                            }
+                            this.addScore(enemy.scoreValue || 100);
+                        } else {
+                            // Small spark for hit but not dead
+                            this.createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, 3);
+                        }
                     }
                 });
             }
@@ -293,8 +304,20 @@ export class Game {
         if (!overlap) {
             const image = this.enemyImages[Math.floor(Math.random() * this.enemyImages.length)];
 
+            if (this.level >= 3) {
+                const rand = Math.random();
+                if (rand < 0.2) {
+                    this.enemies.push(new TitanEnemy(this, x, this.topMargin, image));
+                } else if (rand < 0.5) {
+                    this.enemies.push(new SwarmerEnemy(this, x, this.topMargin, image));
+                } else if (rand < 0.8) {
+                    this.enemies.push(new KamikazeEnemy(this, x, this.topMargin, image));
+                } else {
+                    this.enemies.push(new Enemy(this, x, this.topMargin, image));
+                }
+            }
             // Level 2: Chance to spawn Kamikaze
-            if (this.level >= 2 && Math.random() < 0.6) {
+            else if (this.level >= 2 && Math.random() < 0.6) {
                 this.enemies.push(new KamikazeEnemy(this, x, this.topMargin, image));
             } else {
                 this.enemies.push(new Enemy(this, x, this.topMargin, image));
@@ -329,7 +352,7 @@ export class Game {
         this.powerUps = [];
         this.enemyTimer = 0;
         this.score = 0;
-        this.level = 2;
+        this.level = 3;
         this.lives = 3;
         this.levelTimer = this.levelTime;
 
