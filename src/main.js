@@ -9,20 +9,29 @@ window.addEventListener('load', () => {
     window.game = game;
 
     // UI Elements
-    const startBtn = document.getElementById('startBtn');
+    const level1Btn = document.getElementById('level1Btn');
+    const level2Btn = document.getElementById('level2Btn');
+    const level3Btn = document.getElementById('level3Btn');
     const resumeBtn = document.getElementById('resumeBtn');
     const exitBtn = document.getElementById('exitBtn');
+    const goResumeBtn = document.getElementById('goResumeBtn');
+    const goExitBtn = document.getElementById('goExitBtn');
     const uiLayer = document.getElementById('ui-layer');
     const pauseMenu = document.getElementById('pause-menu');
+    const gameOverMenu = document.getElementById('game-over-menu');
 
-    // Start Game
-    startBtn.addEventListener('click', () => {
-        game.start();
+    // Start Game - Level Selection
+    function startGame(level) {
+        game.start(level);
         uiLayer.style.display = 'none';
-    });
+        gameOverMenu.style.display = 'none';
+    }
+
+    level1Btn.addEventListener('click', () => startGame(1));
+    level2Btn.addEventListener('click', () => startGame(2));
+    level3Btn.addEventListener('click', () => startGame(3));
 
     // Center Tap (Pause) functionality
-    // We attach listener to the canvas container or window to capture taps
     window.addEventListener('click', (e) => {
         // Prevent pausing when clicking buttons
         if (e.target.tagName === 'BUTTON') return;
@@ -33,7 +42,7 @@ window.addEventListener('load', () => {
         }
     });
 
-    // Resume Game
+    // Pause Menu - Resume
     resumeBtn.addEventListener('click', () => {
         if (game.gameState === 'PAUSED') {
             game.pause(); // Toggles back to PLAYING
@@ -41,10 +50,24 @@ window.addEventListener('load', () => {
         }
     });
 
-    // Exit Game
+    // Pause Menu - Exit
     exitBtn.addEventListener('click', () => {
         game.exit();
         pauseMenu.style.display = 'none';
+        uiLayer.style.display = 'flex';
+    });
+
+    // Game Over - Resume (Restart Level)
+    goResumeBtn.addEventListener('click', () => {
+        game.restart();
+        game.gameState = 'PLAYING';
+        gameOverMenu.style.display = 'none';
+    });
+
+    // Game Over - Exit
+    goExitBtn.addEventListener('click', () => {
+        game.exit();
+        gameOverMenu.style.display = 'none';
         uiLayer.style.display = 'flex';
     });
 
@@ -57,9 +80,10 @@ window.addEventListener('load', () => {
         game.draw();
 
         if (game.gameState === 'GAMEOVER') {
-            // Optional: Show UI or restart handling here if needed, 
-            // but current Game.js handles restart with Enter on GameOver screen.
-            // We can keep it simple for now or add a restart button later.
+            // Show Game Over UI if not already shown
+            if (gameOverMenu.style.display === 'none') {
+                gameOverMenu.style.display = 'flex';
+            }
         }
 
         requestAnimationFrame(animate);

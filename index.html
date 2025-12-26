@@ -42,7 +42,7 @@
             pointer-events: none;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
         }
 
@@ -96,7 +96,72 @@
             border: 2px solid white;
             box-shadow: 0 0 20px rgba(0, 150, 255, 0.3);
             text-align: center;
+            text-align: center;
             z-index: 100;
+        }
+
+        #game-over-menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            flex-direction: column;
+            gap: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border: 2px solid red;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+            text-align: center;
+            z-index: 100;
+        }
+
+        #game-over-menu button {
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #game-over-menu button:hover {
+            background: white;
+            color: black;
+            box-shadow: 0 0 10px white;
+            transform: scale(1.05);
+        }
+
+        #level-select-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 280px;
+            /* Precise placement in the middle gap */
+        }
+
+        .level-btn {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: 2px solid white;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 15px;
+            /* Even smaller padding */
+            font-size: 1rem;
+            /* Even smaller font */
+            min-width: 100px;
+        }
+
+        .level-btn:hover {
+            background: white;
+            color: black;
+            box-shadow: 0 0 15px white;
+            transform: scale(1.1);
         }
 
         #pause-menu button {
@@ -225,7 +290,16 @@
         <canvas id="gameCanvas"></canvas>
 
         <div id="ui-layer">
-            <button id="startBtn">START MISSION</button>
+            <div id="level-select-container">
+                <h3
+                    style="font-family: 'Courier New', Courier, monospace; text-shadow: 2px 2px black; margin-bottom: 10px; font-size: 1.2rem;">
+                    SELECT MISSION LEVEL</h3>
+                <div style="display: flex; gap: 15px;">
+                    <button id="level1Btn" class="level-btn">LEVEL 1</button>
+                    <button id="level2Btn" class="level-btn">LEVEL 2</button>
+                    <button id="level3Btn" class="level-btn">LEVEL 3</button>
+                </div>
+            </div>
         </div>
 
         <!-- Pause Menu Overlay -->
@@ -233,6 +307,15 @@
             <h2 style="margin-top: 0; font-family: 'Segoe UI', sans-serif; letter-spacing: 2px;">PAUSED</h2>
             <button id="resumeBtn">RESUME</button>
             <button id="exitBtn">EXIT</button>
+        </div>
+
+        <!-- Game Over Menu Overlay -->
+        <div id="game-over-menu" style="display: none;">
+            <h2
+                style="margin-top: 0; font-family: 'Segoe UI', sans-serif; letter-spacing: 2px; color: red; font-size: 3rem; text-shadow: 2px 2px black;">
+                GAME OVER</h2>
+            <button id="goResumeBtn">RESUME MISSION</button>
+            <button id="goExitBtn">ABORT MISSION</button>
         </div>
     </div>
     <script type="module" src="./src/main.js"></script>

@@ -68,7 +68,8 @@ export class Game {
         this.topMargin = 0; // Height of the HUD to avoid overlap
     }
 
-    start() {
+    start(level = 1) {
+        this.level = level;
         this.gameState = 'PLAYING';
         this.hud.style.display = 'flex'; // Show HUD
         this.restart();
@@ -124,12 +125,7 @@ export class Game {
         }
 
         if (this.gameState === 'GAMEOVER') {
-            if (this.input.keys.includes('Enter') && this.gameOverTimer > 1000) {
-                this.gameState = 'START';
-                this.hud.style.display = 'none'; // Hide HUD
-                this.uiLayer.style.display = 'flex'; // Show Start Button
-                this.restart();
-            }
+            // Handled by UI overlay in main.js
             this.gameOverTimer += deltaTime;
             return;
         }
@@ -265,13 +261,7 @@ export class Game {
             if (this.gameState === 'GAMEOVER') {
                 this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
                 this.ctx.fillRect(0, 0, this.width, this.height);
-                this.ctx.fillStyle = 'red';
-                this.ctx.font = '50px Arial';
-                this.ctx.textAlign = 'center';
-                this.ctx.fillText('GAME OVER', this.width / 2, this.height / 2);
-                this.ctx.fillStyle = 'white';
-                this.ctx.font = '20px Arial';
-                this.ctx.fillText('Press Enter to Restart', this.width / 2, this.height / 2 + 50);
+                // Text handled by UI overlay
             }
 
             if (this.gameState === 'LEVEL_COMPLETE') {
@@ -364,7 +354,7 @@ export class Game {
         this.powerUps = [];
         this.enemyTimer = 0;
         this.score = 0;
-        this.level = 3;
+        // this.level is preserved
         this.lives = 3;
         this.levelTimer = this.levelTime;
 
