@@ -99,28 +99,29 @@
         @media (max-width: 600px) {
             #stats-row {
                 width: 100%;
-                padding: 0 10px;
+                padding: 0 2px;
                 box-sizing: border-box;
-                flex-wrap: wrap;
-                /* Allow wrapping */
+                flex-wrap: nowrap;
+                /* Force single row */
                 justify-content: center;
-                gap: 5px;
-                /* Gap between items */
+                gap: 2px;
+                /* Minimal gap */
             }
 
             .hud-item {
-                font-size: 0.8rem;
-                /* Slightly larger than before for readability */
-                padding: 5px;
-                min-width: 100px;
-                /* Ensure they don't get too squashed */
-                flex: 1 1 40%;
-                /* Force 2 items per row (roughly) */
+                font-size: 0.6rem;
+                /* significantly smaller font */
+                padding: 4px 1px;
+                min-width: 0;
+                /* Allow shrinking */
+                flex: 1;
+                /* Distribute space evenly */
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 white-space: nowrap;
                 overflow: hidden;
+                border-width: 1px;
             }
 
             #game-title {
