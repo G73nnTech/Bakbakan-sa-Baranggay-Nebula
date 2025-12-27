@@ -21,6 +21,8 @@ export class InputHandler {
             }
         });
 
+        this.hasTouched = false; // Track if mobile controls are being used
+
         // Mobile Button Listeners
         const btnLeft = document.getElementById('btnLeft');
         const btnRight = document.getElementById('btnRight');
@@ -34,18 +36,14 @@ export class InputHandler {
         };
 
         const handleMobilePress = (direction) => {
+            this.hasTouched = true; // Enable auto-fire permanently for mobile
             // Add direction key
             addKey(direction);
-            // Add shoot key (Auto-shoot)
-            addKey(' ');
         };
 
         const handleMobileRelease = (direction) => {
             removeKey(direction);
-            // Only stop shooting if NO move keys are pressed
-            if (this.keys.indexOf('ArrowLeft') === -1 && this.keys.indexOf('ArrowRight') === -1) {
-                removeKey(' ');
-            }
+            // We no longer remove space (' ') here because we want continuous fire
         };
 
         if (btnLeft && btnRight) {

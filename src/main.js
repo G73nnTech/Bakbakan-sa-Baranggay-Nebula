@@ -2,8 +2,8 @@ import { Game } from './Game.js';
 
 window.addEventListener('load', () => {
     const canvas = document.getElementById('gameCanvas');
-    canvas.width = 800;
-    canvas.height = 600;
+    canvas.width = 600;
+    canvas.height = 800;
 
     const game = new Game(canvas);
     window.game = game;
