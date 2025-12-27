@@ -95,6 +95,51 @@
             }
         }
 
+        /* Mobile Dashboard Fix */
+        @media (max-width: 600px) {
+            #stats-row {
+                gap: 5px;
+                /* Smaller gap */
+                width: 100%;
+                padding: 0 10px;
+                /* Add side padding to container */
+                box-sizing: border-box;
+            }
+
+            .hud-item {
+                font-size: 0.75rem;
+                /* Smaller font */
+                padding: 5px 2px;
+                /* Minimal padding */
+                min-width: 0;
+                /* Allow shrinking below content size if needed */
+                flex: 1;
+                /* Distribute space */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                white-space: nowrap;
+                /* Prevent text wrapping */
+                overflow: hidden;
+                /* Hide overflow if it still happens */
+            }
+
+            #game-title {
+                font-size: 16px;
+                padding: 5px 10px;
+                margin-bottom: 10px;
+                width: 90%;
+                /* prevent overflow */
+                box-sizing: border-box;
+                text-align: center;
+            }
+
+            #hud {
+                min-height: auto;
+                padding-bottom: 10px;
+            }
+        }
+
         #ui-layer {
             position: absolute;
             top: 0;
