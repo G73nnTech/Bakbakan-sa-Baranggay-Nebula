@@ -98,30 +98,29 @@
         /* Mobile Dashboard Fix */
         @media (max-width: 600px) {
             #stats-row {
-                gap: 5px;
-                /* Smaller gap */
                 width: 100%;
                 padding: 0 10px;
-                /* Add side padding to container */
                 box-sizing: border-box;
+                flex-wrap: wrap;
+                /* Allow wrapping */
+                justify-content: center;
+                gap: 5px;
+                /* Gap between items */
             }
 
             .hud-item {
-                font-size: 0.75rem;
-                /* Smaller font */
-                padding: 5px 2px;
-                /* Minimal padding */
-                min-width: 0;
-                /* Allow shrinking below content size if needed */
-                flex: 1;
-                /* Distribute space */
+                font-size: 0.8rem;
+                /* Slightly larger than before for readability */
+                padding: 5px;
+                min-width: 100px;
+                /* Ensure they don't get too squashed */
+                flex: 1 1 40%;
+                /* Force 2 items per row (roughly) */
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 white-space: nowrap;
-                /* Prevent text wrapping */
                 overflow: hidden;
-                /* Hide overflow if it still happens */
             }
 
             #game-title {
